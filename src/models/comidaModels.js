@@ -1,27 +1,47 @@
-// src/controllers/userController.js
+import { PrismaClient } from "@prisma/client";
+const prisma = new PrismaClient();
 
-import prisma from "../models/prismaClient.js";
+//criar exportando a variavel -> findAll(encontreTodos) que vai ser o SELECT * FROM bruxos;
+export const listarTodos = async() => {
+    //SELECT * FROM bruxos;
+    return await prisma.bruxo.findMany({
+        orderBy: { nome: 'asc'}
+    });
+}
 
-// Criar novo usuário
-export const createUser = async (req, res) => {
-    const { email, name } = req.body;
-    
-    try {
-        const user = await prisma.user.create({
-            data: { email, name }
-        });
-        res.status(201).json(user);
-    } catch (error) {
-        res.status(400).json({ error: error.message });
-    }
-};
+export const listaUm = async(id) => {
+    //SELECT * FROM bruxos WHERE id = 1;
+    return await prisma.comida.findUnique({
+        where: { id: Number(id) }
+    })
+}
 
-// Buscar todos os usuários
-export const getAllUsers = async (req, res) => {
-    try {
-        const users = await prisma.user.findMany();
-        res.json(users);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-};
+export const criar = async (dado) => {
+    return await prisma.comida.create({
+        data:{
+            nome: dado.nome,
+            tipo: dado.tipo,
+            preco: dado.preco,
+            descricao: dado.descricao
+        }
+    })
+}
+
+export const deletar = async (id) => {
+    return await prisma.comida.delete({
+        where: { id: Number(id)}
+    })
+}
+
+export const atualizar = async (id, dado) => {
+    return await prisma.comida.update({
+        where: {id: Number(id)},
+        data: {
+            ...(dado.nome && {nome: dado.nome}),
+            ...(dado.tipo && { tipo: dado.tipo}),
+            ...(dado.preco && {preco: dado.preco}),
+            ...(dado.descricao && {descricao: dado.descricao})
+        }
+    })
+}
+
